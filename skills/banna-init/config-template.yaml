@@ -1,0 +1,74 @@
+# Banna config. Read by banna-draft, banna-cold-review, banna-build, banna-handoff,
+# banna-archive and banna-verify at the start of every run.
+# A skill that finds this file missing or invalid stops and says so; it never guesses defaults.
+# Scaffolded by banna-init — fill in the areas and test commands for this project.
+
+paths:
+  plans: .banna/plans
+  handoffs: .banna/handoffs
+  archive: archive/{yyyy}-{mm}        # under each of plans/ and handoffs/
+
+# Plan file name: YYYY-MM-DD-NNN-<slug>.md. NNN counts plans within that day (001, 002, ...).
+# The plan id is the date plus NNN: 2026-11-13-001. Never reused, even after the plan is archived.
+plan_id_digits: 3
+
+areas:                                # each area keeps its own knowledge docs next to its code
+  root: { code: ".", docs: docs }     # cross-service docs: API contract, deploy, conventions
+  # One area per deployable/testable slice of the repo. Examples:
+  # api:   { code: api/,   docs: api/docs }
+  # web:   { code: web/,   docs: web/docs }
+  # admin: { code: admin/, docs: admin/docs }   # local-only screens, never deployed
+
+knowledge:                            # doc kinds; paths are relative to an area's docs dir
+  adr:         adr/          # an invariant an agent cannot infer from the code and would break
+  conventions: conventions/   # ID'd rules that apply on every change
+  context:     CONTEXT.md     # domain glossary
+  stack:       stack.md       # language, tooling, commands, environment facts
+  index:       AGENTS.md      # at each area root: one line per doc. Claude Code users: keep a
+                               # one-line CLAUDE.md importing it (`@AGENTS.md`)
+
+catalog:                              # models the running agent actually serves — REPLACE WITH YOURS.
+                                      # tier = relative strength, cost = relative cost. stages below
+                                      # reference these ids, so keep them in sync.
+                                      # Claude default below. Other examples:
+                                      #   Codex:   { gpt-5.2: tier 3, gpt-5.1: tier 2, gpt-5-mini: tier 1 }
+                                      #   ZCode:   { glm-4.7: tier 3, glm-4.6: tier 2, glm-4.5-air: tier 1 }
+  haiku:  { id: haiku,  tier: 1, cost: 1 }
+  sonnet: { id: sonnet, tier: 2, cost: 3 }
+  opus:   { id: opus,   tier: 3, cost: 10 }
+
+difficulty:                           # banna-draft rates every task with one of these
+  S: "mechanical: rename, config, boilerplate the plan fully specifies"
+  M: "default: a specified task in a familiar codebase"
+  L: "hard: concurrency, migrations, auth, public contracts, real design freedom left to the executor"
+
+stages:                               # per stage, allowed models by difficulty, in order of preference
+  grill:       { any: [opus, sonnet],                                      effort: medium }  # runs in the main session via the banna-grill skill
+  plan:        { S: [sonnet],         M: [opus, sonnet], L: [opus],        effort: medium }
+  plan_review: { any: [opus, sonnet], cold: true,                          effort: medium }
+  tests:       { S: [haiku, sonnet],  M: [sonnet],       L: [opus, sonnet], effort: medium }
+  implement:   { S: [haiku, sonnet],  M: [sonnet],       L: [opus, sonnet], effort: medium }
+  root_cause:  { any: [opus, sonnet],                                             effort: high }
+  verify:      { any: [haiku, sonnet],                                     effort: low }
+  record:      { any: [sonnet, opus],                                      effort: medium }
+
+selection:
+  available: [haiku, sonnet, opus]    # only models you can use right now; the rest are skipped
+  prefer: cheapest                    # cheapest | strongest, among the allowed ones
+  escalate_on_failure: true           # same failure twice -> that task moves up one tier
+  max_tier: 3
+  enforcement: stop                   # stop | warn: when the running session model is below what a stage needs
+
+tests:
+  freeze: true                        # tests are frozen once approved; code changes, tests do not
+  commands:                           # one command per area; banna-build runs each area's command
+    root: "echo 'no tests configured yet'"
+    # api:  "cd api && pytest"
+    # web: "cd web && pnpm test"
+  order: [contract, integration, e2e, unit]
+  forbid_in_frozen: [skip, xfail, only, snapshot-update]
+
+archive:
+  auto_on_close: true                 # banna-build moves a done plan itself
+  handoff_on_done: archive            # archive | delete
+  keep_active_days: 14

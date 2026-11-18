@@ -1,0 +1,7 @@
+interface:
+  display_name: "Banna Verify"
+  short_description: "Verify the change on the real stack, beyond the test suite"
+  default_prompt: "Use $banna-verify to run this project locally and verify the affected workflow."
+
+policy:
+  allow_implicit_invocation: true

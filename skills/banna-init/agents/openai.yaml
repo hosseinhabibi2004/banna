@@ -1,0 +1,7 @@
+interface:
+  display_name: "Banna Init"
+  short_description: "Scaffold banna into a project: config, areas, folders"
+  default_prompt: "Use $banna-init to set up banna in this project."
+
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Setup",
+      "description": "One-time scaffold of .banna/config.yaml and project folders.",
+      "skills": ["banna-init"]
+    },
+    {
+      "title": "The flow",
+      "description": "Draft the plan, review it cold, build against frozen tests, verify on the real stack.",
+      "skills": [
+        "banna-draft",
+        "banna-grill",
+        "banna-cold-review",
+        "banna-build",
+        "banna-verify"
+      ]
+    },
+    {
+      "title": "Git",
+      "description": "Conventional Commits grouped by concern, one squash commit per feature.",
+      "skills": ["banna-commit", "banna-squash-commit"]
+    },
+    {
+      "title": "Records",
+      "description": "Park out-of-scope work as handoffs and archive finished plans by month.",
+      "skills": ["banna-handoff", "banna-archive"]
+    }
+  ]
+}

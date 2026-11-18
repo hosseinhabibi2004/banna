@@ -1,0 +1,7 @@
+interface:
+  display_name: "Banna Archive"
+  short_description: "Sweep finished plans and handoffs into monthly archives"
+  default_prompt: "Use $banna-archive to sweep finished plans and handoffs into their archives."
+
+policy:
+  allow_implicit_invocation: true
